@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="jp.techacademy.hisakazu.matsuo.qa_app">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,6 +12,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".QuestionsListAdapter"></activity>
+        <activity android:name=".Main2Activity" />
+        <activity android:name=".Answer" />
+        <activity android:name=".Question" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -19,7 +26,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".SettingActivity" />
+        <activity android:name=".QuestionSendActivity" />
     </application>
 
 </manifest>
