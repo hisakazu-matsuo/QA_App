@@ -94,8 +94,33 @@ class QuestionDetailActivity : AppCompatActivity() {
             }
         }
 
+        //お気に入りボタンの処理
+//        val user = FirebaseAuth.getInstance().currentUser
+
+//        if (user == null) {
+            // ログインしていなければボタンを表示しない
+//            button3.visibility=View.INVISIBLE
+//        } else {
+//            button3.visibility=View.VISIBLE
+//        }
+
         val dataBaseReference = FirebaseDatabase.getInstance().reference
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
     }
+
+    override fun onResume() {
+        super.onResume()
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            // ログインしていなければボタンを表示しない
+            button3.visibility=View.INVISIBLE
+        } else {
+            button3.visibility=View.VISIBLE
+
+        }
+     }
+    
+
 }
