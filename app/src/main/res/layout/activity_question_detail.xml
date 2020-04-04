@@ -27,7 +27,7 @@
         android:layout_marginTop="400dp"
         android:textSize="10sp"
         android:id="@+id/button3"
-        android:text="お気に入り" />
+        android:text="お気に入り登録" />
 
 
 
