@@ -128,17 +128,23 @@ class QuestionDetailActivity : AppCompatActivity() {
         val FavoriteRef =
             mDataBaseReference.child(FavoritesPATH).child(user!!.uid).child(mQuestion.questionUid)
 
- //       FavoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
- //           override fun onDataChange(snapshot: DataSnapshot) {
-                // お気に入り削除
- //               val data = snapshot.value as Map<*, *>?
 
-                //FavoriteRef.setValue("")
- //               button3.text = "お気に入り削除"
- //           }
+        // お気に入り判定
+       FavoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
+           override fun onDataChange(snapshot: DataSnapshot) {
+               Log.d("matt", snapshot.toString())
 
- //           override fun onCancelled(firebaseError: DatabaseError) {}
- //       })
+               val data = snapshot.value as Map<*, *>?
+
+               if (mQuestion.questionUid== "") {
+                   button3.text = "お気に入り登録"
+               }else{
+                   button3.text=="お気に入り削除"
+               }
+
+           }
+           override fun onCancelled(firebaseError: DatabaseError) {}
+       })
 
 
                 button3.setOnClickListener() {
@@ -154,19 +160,14 @@ class QuestionDetailActivity : AppCompatActivity() {
                 button3.text = "お気に入り削除"
 
             }else{
-                FavoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        // お気に入り削除
-                        FavoriteRef.setValue("")
-                        button3.text = "お気に入り登録"
+                // お気に入り削除
+                FavoriteRef.removeValue()
+                button3.text = "お気に入り登録"
                 }
-
-                override fun onCancelled(firebaseError: DatabaseError) {}
-            })
             }
         }
     }
-}
+
 
 
 
