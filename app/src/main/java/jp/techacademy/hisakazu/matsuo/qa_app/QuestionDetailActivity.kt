@@ -131,17 +131,15 @@ class QuestionDetailActivity : AppCompatActivity() {
 
         // お気に入り判定
 
-        var isFavorite = false
-
         FavoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val data = snapshot.value as Map<*, *>?
 
-                    Log.d("matt1", isFavorite.toString())
-                    
-                    isFavorite = true
+                    //isFavorite = true
 
-                    if (isFavorite) {
+                    Log.d("matt1", data.toString())
+
+                    if (data==null) {
                         button3.text = "お気に入り登録"
                         //isFavorite = false
                         Log.d("matt2", data.toString())
@@ -151,7 +149,7 @@ class QuestionDetailActivity : AppCompatActivity() {
                         //isFavorite = true
                         Log.d("matt3", data.toString())
                     }
-                    }
+                }
                 override fun onCancelled(firebaseError: DatabaseError) {}
             })
 
