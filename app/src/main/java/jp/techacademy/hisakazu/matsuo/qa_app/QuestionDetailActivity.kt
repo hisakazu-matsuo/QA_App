@@ -1,6 +1,7 @@
 package jp.techacademy.hisakazu.matsuo.qa_app
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
@@ -24,6 +25,8 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
     private lateinit var mFavoritesRef: DatabaseReference
+
+    private var isFavorite = false
 
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
@@ -125,54 +128,58 @@ class QuestionDetailActivity : AppCompatActivity() {
 //            if (task.isSuccessful) {
         lateinit var mDataBaseReference: DatabaseReference
         mDataBaseReference = FirebaseDatabase.getInstance().reference
-        val FavoriteRef =
-            mDataBaseReference.child(FavoritesPATH).child(user!!.uid).child(mQuestion.questionUid)
+        if (user != null) {
+            val FavoriteRef =
+                mDataBaseReference.child(FavoritesPATH).child(user!!.uid)
+                    .child(mQuestion.questionUid)
 
 
-        // お気に入り判定
-
-        FavoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            // お気に入り判定
+            FavoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val data = snapshot.value as Map<*, *>?
 
-                    //isFavorite = true
-
                     Log.d("matt1", data.toString())
 
-                    if (data==null) {
+                    if (data == null) {
                         button3.text = "お気に入り登録"
-                        //isFavorite = false
+                        //button3.setBackgroundColor(Color.GREEN)
                         Log.d("matt2", data.toString())
-
-                    }else{
+                        isFavorite = false
+                    } else {
                         button3.text = "お気に入り削除"
-                        //isFavorite = true
+                        isFavorite = true
                         Log.d("matt3", data.toString())
                     }
                 }
+
                 override fun onCancelled(firebaseError: DatabaseError) {}
             })
+            button3.setOnClickListener() {
 
-        button3.setOnClickListener() {
+                if (isFavorite == false) {
+                    //お気に入りに登録
+                    lateinit var mFavoriteRef: DatabaseReference
+                    mFavoriteRef = FirebaseDatabase.getInstance().reference
+                    val FavoriteRef =
+                        mFavoriteRef.child(FavoritesPATH).child(user!!.uid)
+                            .child(mQuestion.questionUid)
+                    val data = HashMap<String, String>()
+                    data["genre"] = mQuestion.genre.toString()
+                    FavoriteRef.setValue(data)
+                    button3.text = "お気に入り削除"
+                    isFavorite = true
 
-            if (button3.text=="お気に入り登録"){
-                //お気に入りに登録
-                lateinit var mFavoriteRef: DatabaseReference
-                mFavoriteRef = FirebaseDatabase.getInstance().reference
-                val FavoriteRef = mFavoriteRef.child(FavoritesPATH).child(user!!.uid).child(mQuestion.questionUid)
-                val data = HashMap<String, String>()
-                data["question"] = mQuestion.questionUid
-                FavoriteRef.setValue(data)
-                button3.text = "お気に入り削除"
-
-            }else{
-                // お気に入り削除
-                FavoriteRef.removeValue()
-                button3.text = "お気に入り登録"
+                } else {
+                    // お気に入り削除
+                    FavoriteRef.removeValue()
+                    button3.text = "お気に入り登録"
+                    isFavorite = false
                 }
             }
         }
     }
+}
 
 
 
