@@ -1,0 +1,269 @@
+Index: app/src/main/res/layout/activity_favorite.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_favorite.xml	(date 1586325970284)
++++ app/src/main/res/layout/activity_favorite.xml	(date 1586325970284)
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical">
++
++    <ListView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/listView"/>
++</LinearLayout>
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision f0444af177b6814b0f1e48f5a6f55b6e08fed0ca)
++++ app/src/main/AndroidManifest.xml	(date 1586325863682)
+@@ -12,6 +12,9 @@
+         android:roundIcon="@mipmap/ic_launcher_round"
+         android:supportsRtl="true"
+         android:theme="@style/AppTheme">
++        <activity android:name=".FavoriteActivity"></activity>
++        <activity android:name="jp.techacademy.hisakazu.matsuo.intent.FavoriteActivity" />
++        <activity android:name=".Main2Activity" />
+         <activity
+             android:name=".MainActivity"
+             android:label="@string/app_name"
+@@ -22,11 +25,11 @@
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
+-        <activity android:name=".LoginActivity"></activity>
+-        <activity android:name=".SettingActivity"></activity>
+-        <activity android:name=".QuestionSendActivity"></activity>
+-        <activity android:name=".QuestionDetailActivity"></activity>
+-        <activity android:name=".AnswerSendActivity"></activity>
++        <activity android:name=".LoginActivity" />
++        <activity android:name=".SettingActivity" />
++        <activity android:name=".QuestionSendActivity" />
++        <activity android:name=".QuestionDetailActivity" />
++        <activity android:name=".AnswerSendActivity" />
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
+Index: app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/Favorite.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/Favorite.kt	(date 1586327685795)
++++ app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/Favorite.kt	(date 1586327685795)
+@@ -0,0 +1,12 @@
++package jp.techacademy.hisakazu.matsuo.qa_app
++
++import java.io.Serializable
++import java.util.ArrayList
++
++class Favorite(val title: String, val body: String, val name: String, val uid: String, val questionUid: String, val genre: Int, bytes: ByteArray, val answers: ArrayList<Answer>) : Serializable {
++    val imageBytes: ByteArray
++
++    init {
++        imageBytes = bytes.clone()
++    }
++}
+\ No newline at end of file
+Index: app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/FavoriteActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/FavoriteActivity.kt	(date 1586328688690)
++++ app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/FavoriteActivity.kt	(date 1586328688690)
+@@ -0,0 +1,36 @@
++package jp.techacademy.hisakazu.matsuo.qa_app
++
++import android.support.v7.app.AppCompatActivity
++import android.os.Bundle
++import android.util.Log
++import android.widget.ListView
++import android.widget.SimpleAdapter
++import com.google.firebase.database.DatabaseReference
++import kotlinx.android.synthetic.main.activity_main.*
++import kotlinx.android.synthetic.main.content_main.*
++
++class FavoriteActivity : AppCompatActivity() {
++
++    private lateinit var mDatabaseReference: DatabaseReference
++    private lateinit var mListView: ListView
++    private lateinit var mQuestionArrayList: ArrayList<Question>
++    private lateinit var mAdapter: FavoriteListAdapter
++
++    private var mGenreRef: DatabaseReference? = null
++
++
++
++    override fun onCreate(savedInstanceState: Bundle?) {
++        super.onCreate(savedInstanceState)
++        setContentView(R.layout.activity_main)
++
++
++
++        // ListViewの準備
++        mListView = findViewById(R.id.listView)
++        mAdapter = FavoriteListAdapter(this)
++        mQuestionArrayList = ArrayList<Question>()
++        mAdapter.notifyDataSetChanged()
++
++    }
++}
+Index: app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/MainActivity.kt	(revision f0444af177b6814b0f1e48f5a6f55b6e08fed0ca)
++++ app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/MainActivity.kt	(date 1586329506549)
+@@ -20,6 +20,7 @@
+ import com.google.firebase.database.DatabaseReference
+ import com.google.firebase.database.FirebaseDatabase
+ import android.util.Base64  //追加する
++import android.view.View
+ import android.widget.ListView
+ 
+ 
+@@ -64,8 +65,10 @@
+                 }
+             }
+ 
+-            val question = Question(title, body, name, uid, dataSnapshot.key ?: "",
+-                mGenre, bytes, answerArrayList)
++            val question = Question(
++                title, body, name, uid, dataSnapshot.key ?: "",
++                mGenre, bytes, answerArrayList
++            )
+             mQuestionArrayList.add(question)
+             mAdapter.notifyDataSetChanged()
+         }
+@@ -140,7 +143,8 @@
+ 
+         // ナビゲーションドロワーの設定
+         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+-        val toggle = ActionBarDrawerToggle(this, drawer, mToolbar, R.string.app_name, R.string.app_name)
++        val toggle =
++            ActionBarDrawerToggle(this, drawer, mToolbar, R.string.app_name, R.string.app_name)
+         drawer.addDrawerListener(toggle)
+         toggle.syncState()
+ 
+@@ -171,7 +175,7 @@
+         val navigationView = findViewById<NavigationView>(R.id.nav_view)
+ 
+         // 1:趣味を既定の選択とする
+-        if(mGenre == 0) {
++        if (mGenre == 0) {
+             onNavigationItemSelected(navigationView.menu.getItem(0))
+         }
+     }
+@@ -210,7 +214,15 @@
+             mToolbar.title = "コンピューター"
+             mGenre = 4
+         } else if (id == R.id.nav_favorite) {
+-
++            val user = FirebaseAuth.getInstance().currentUser
++            if (user == null) {
++                // ログインしていなければボタンを表示しない
++                nav_favorite.visibility = View.INVISIBLE
++            } else {
++                nav_favorite.visibility = View.VISIBLE
++                val intent = Intent(this, FavoriteActivity::class.java)
++                startActivity(intent)
++            }
+         }
+ 
+         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+@@ -232,4 +244,7 @@
+ 
+         return true
+     }
+-}
+\ No newline at end of file
++
++}
++
++
+Index: app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/FavoriteListAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/FavoriteListAdapter.kt	(date 1586327814790)
++++ app/src/main/java/jp/techacademy/hisakazu/matsuo/qa_app/FavoriteListAdapter.kt	(date 1586327814790)
+@@ -0,0 +1,65 @@
++package jp.techacademy.hisakazu.matsuo.qa_app
++
++import android.content.Context
++import android.graphics.Bitmap
++import android.graphics.BitmapFactory
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import android.widget.BaseAdapter
++import android.widget.ImageView
++import android.widget.TextView
++
++import java.util.ArrayList
++
++class FavoriteListAdapter(context: Context) : BaseAdapter() {
++    private var mLayoutInflater: LayoutInflater
++    private var mQuestionArrayList = ArrayList<Question>()
++
++    init {
++        mLayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
++    }
++
++    override fun getCount(): Int {
++        return mQuestionArrayList.size
++    }
++
++    override fun getItem(position: Int): Any {
++        return mQuestionArrayList[position]
++    }
++
++    override fun getItemId(position: Int): Long {
++        return position.toLong()
++    }
++
++    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
++        var convertView = convertView
++
++        if (convertView == null) {
++            convertView = mLayoutInflater.inflate(R.layout.list_questions, parent, false)
++        }
++
++        val titleText = convertView!!.findViewById<View>(R.id.titleTextView) as TextView
++        titleText.text = mQuestionArrayList[position].title
++
++        val nameText = convertView.findViewById<View>(R.id.nameTextView) as TextView
++        nameText.text = mQuestionArrayList[position].name
++
++        val resText = convertView.findViewById<View>(R.id.resTextView) as TextView
++        val resNum = mQuestionArrayList[position].answers.size
++        resText.text = resNum.toString()
++
++        val bytes = mQuestionArrayList[position].imageBytes
++        if (bytes.isNotEmpty()) {
++            val image = BitmapFactory.decodeByteArray(bytes, 0, bytes.size).copy(Bitmap.Config.ARGB_8888, true)
++            val imageView = convertView.findViewById<View>(R.id.imageView) as ImageView
++            imageView.setImageBitmap(image)
++        }
++
++        return convertView
++    }
++
++    fun setQuestionArrayList(questionArrayList: ArrayList<Question>) {
++        mQuestionArrayList = questionArrayList
++    }
++}
+\ No newline at end of file

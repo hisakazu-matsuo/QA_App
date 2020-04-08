@@ -12,6 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".FavoriteActivity"></activity>
+        <activity android:name="jp.techacademy.hisakazu.matsuo.intent.FavoriteActivity" />
+        <activity android:name=".Main2Activity" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -22,11 +25,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".SettingActivity"></activity>
-        <activity android:name=".QuestionSendActivity"></activity>
-        <activity android:name=".QuestionDetailActivity"></activity>
-        <activity android:name=".AnswerSendActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".SettingActivity" />
+        <activity android:name=".QuestionSendActivity" />
+        <activity android:name=".QuestionDetailActivity" />
+        <activity android:name=".AnswerSendActivity" />
     </application>
 
 </manifest>
