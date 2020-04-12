@@ -2,7 +2,6 @@ package jp.techacademy.hisakazu.matsuo.qa_app
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -20,8 +19,11 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64  //追加する
+import android.util.Log
 import android.view.View
 import android.widget.ListView
+import kotlinx.android.synthetic.main.activity_main.*
+import android.support.design.widget.FloatingActionButton as FloatingActionButton1
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -39,6 +41,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
+            Log.d("matt", "onChildAdded:" + dataSnapshot.key!!)
+            Log.d("matt2", dataSnapshot.toString())
             val map = dataSnapshot.value as Map<String, String>
             val title = map["title"] ?: ""
             val body = map["body"] ?: ""
@@ -118,7 +122,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mToolbar = findViewById(R.id.toolbar)
         setSupportActionBar(mToolbar)
 
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
+        val fab = findViewById<FloatingActionButton1>(R.id.fab)
         fab.setOnClickListener { view ->
             // ジャンルを選択していない場合（mGenre == 0）はエラーを表示するだけ
             if (mGenre == 0) {
@@ -178,6 +182,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (mGenre == 0) {
             onNavigationItemSelected(navigationView.menu.getItem(0))
         }
+        // ログインしているか、いないか？
+        val user = FirebaseAuth.getInstance().currentUser
+        val menuNav = navigationView.menu
+        val nav_favorite = menuNav.findItem(R.id.nav_favorite)
+        if (user == null) {
+            // ログインしていなければボタンを表示しない
+            nav_favorite.setVisible(false)
+            // ログインしてい ればボタンを表示する
+        } else {
+            nav_favorite.setVisible(true)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -214,15 +229,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mToolbar.title = "コンピューター"
             mGenre = 4
         } else if (id == R.id.nav_favorite) {
-            val user = FirebaseAuth.getInstance().currentUser
-            if (user == null) {
-                // ログインしていなければボタンを表示しない
-                nav_favorite.visibility = View.INVISIBLE
-            } else {
-                nav_favorite.visibility = View.VISIBLE
-                val intent = Intent(this, FavoriteActivity::class.java)
-                startActivity(intent)
-            }
+            val intent = Intent(this, FavoriteActivity::class.java)
+            startActivity(intent)
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
