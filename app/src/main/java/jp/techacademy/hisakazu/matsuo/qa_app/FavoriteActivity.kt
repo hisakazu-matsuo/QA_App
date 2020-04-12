@@ -20,9 +20,8 @@ class FavoriteActivity : AppCompatActivity() {
 
     val user = mAuth.currentUser
     val dataBaseReference = FirebaseDatabase.getInstance().reference
-    val favRef = dataBaseReference.child(FavoritesPATH).child(user!!.uid)
 
-    favRef.addChildEventListener(mFavoriteListener)
+    val favRef = dataBaseReference.child(FavoritesPATH).child(user!!.uid)
 
     private val mFavoriteListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
@@ -33,21 +32,32 @@ class FavoriteActivity : AppCompatActivity() {
             //Firebaseでデータを取ってくる処理をいれる
             val questionRef =
                 dataBaseReference.child(ContentsPATH).child(genre.toString()).child(questionUid)
+            questionRef.addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(dataSnaphot: DataSnapshot) {
+                        //質問の中身を取ってくる
+                    }
 
-            questionRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snaphot: DataSnapshot) {
-                    //質問の中身を取ってくる
-                }
+                    override fun onCancelled(databaseError: DatabaseError) {}
+                })
+        }
 
-                override fun onCancelled(firebaseErro: DatabaseError) {}
-            })
-
+        override fun onCancelled(p0: DatabaseError) {
+        }
+        override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+        }
+        override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+        }
+        override fun onChildRemoved(p0: DataSnapshot) {
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        favRef.addChildEventListener(mFavoriteListener)
 
         // Firebase
         mDatabaseReference = FirebaseDatabase.getInstance().reference
@@ -61,10 +71,11 @@ class FavoriteActivity : AppCompatActivity() {
 
         mListView.setOnItemClickListener { parent, view, position, id ->
             // Questionのインスタンスを渡して質問一覧画面を起動する
-            val intent = Intent(applicationContext, QuestionsListAdapter::class.java)
+            val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
             intent.putExtra("question", mQuestionArrayList[position])
             startActivity(intent)
         }
     }
+
 }
 
