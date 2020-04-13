@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
-            Log.d("matt", "onChildAdded:" + dataSnapshot.key!!)
+            Log.d("matt1", "onChildAdded:" + dataSnapshot.key!!)
             Log.d("matt2", dataSnapshot.toString())
             val map = dataSnapshot.value as Map<String, String>
             val title = map["title"] ?: ""
