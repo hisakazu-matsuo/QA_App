@@ -12,6 +12,7 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.FirebaseDatabase
+import android.util.Base64
 
 class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -25,7 +26,7 @@ class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
             val genre = map["genre"] ?: ""
-            val questionUid = map["question"] ?: ""
+            val questionUid = dataSnapshot.key!!
             Log.d("matt3", dataSnapshot.key!!)
             Log.d("matt4", dataSnapshot.toString())
 
@@ -37,9 +38,38 @@ class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             questionRef.addListenerForSingleValueEvent(
                 object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        val data = dataSnapshot.value as Map<String, String>
+                        val map = dataSnapshot.value as Map<String, String>
                         //質問の中身を取ってくる
                         Log.d("matt5", dataSnapshot.toString())
+                        val title = map["title"] ?: ""
+                        val body = map["body"] ?: ""
+                        val name = map["name"] ?: ""
+                        val uid = map["uid"] ?: ""
+                        val imageString = map["image"] ?: ""
+                        val bytes =
+                            if (imageString.isNotEmpty()) {
+                                Base64.decode(imageString, Base64.DEFAULT)
+                            } else {
+                                byteArrayOf()
+                            }
+                        Log.d("matt6", title)
+
+                        val answerArrayList = ArrayList<Answer>()
+                        val answerMap = map["answers"] as Map<String, String>?
+                        if (answerMap != null) {
+                            for (key in answerMap.keys) {
+                                val temp = answerMap[key] as Map<String, String>
+                                val answerBody = temp["body"] ?: ""
+                                val answerName = temp["name"] ?: ""
+                                val answerUid = temp["uid"] ?: ""
+                                val answer = Answer(answerBody, answerName, answerUid, key)
+                                answerArrayList.add(answer)
+                            }
+                        }
+
+                        val question = Question(title,body,name,uid,questionUid,genre.toInt(),bytes,answerArrayList)
+                        mQuestionArrayList.add(question)//配列に追加
+                        mAdapter.notifyDataSetChanged()
 
                     }
 
@@ -75,23 +105,15 @@ class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val favRef = dataBaseReference.child(FavoritesPATH).child(user!!.uid)
         favRef.addChildEventListener(mFavoriteListener)
 
-        Log.d("matt", "FirebaseAuthのオブジェクトを取得する")
-
         // ListViewの準備
         mListView = findViewById(R.id.listView)
         mAdapter = QuestionsListAdapter(this)
         mQuestionArrayList = ArrayList<Question>()
 
-        val question = Question("","","","","","","","")
-
-        mQuestionArrayList.add(question) //配列に追加
-
+        mAdapter.setQuestionArrayList(mQuestionArrayList)
+        mListView.adapter = mAdapter
         mAdapter.notifyDataSetChanged() //画面表示
 
-
-        // --- ここまで追加する ---
-
-        Log.d("matt", "ListViewの準備")
 
         mListView.setOnItemClickListener { parent, view, position, id ->
             // Questionのインスタンスを渡して質問詳細画面を起動する
