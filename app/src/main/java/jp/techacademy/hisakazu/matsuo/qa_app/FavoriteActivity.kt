@@ -13,6 +13,15 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64
+import android.view.KeyEvent.KEYCODE_BACK
+import android.support.v4.app.SupportActivity
+import android.support.v4.app.SupportActivity.ExtraData
+import android.support.v4.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.R.attr.name
+import android.R.attr.start
+import android.view.KeyEvent
+
 
 class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -67,7 +76,16 @@ class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                             }
                         }
 
-                        val question = Question(title,body,name,uid,questionUid,genre.toInt(),bytes,answerArrayList)
+                        val question = Question(
+                            title,
+                            body,
+                            name,
+                            uid,
+                            questionUid,
+                            genre.toInt(),
+                            bytes,
+                            answerArrayList
+                        )
                         mQuestionArrayList.add(question)//配列に追加
                         mAdapter.notifyDataSetChanged()
 
@@ -99,11 +117,11 @@ class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         Log.d("matt", "onCreate")
 
         // FirebaseAuthのオブジェクトを取得する
-        mAuth = FirebaseAuth.getInstance()
+        /*mAuth = FirebaseAuth.getInstance()
         val user = mAuth.currentUser
         val dataBaseReference = FirebaseDatabase.getInstance().reference
         val favRef = dataBaseReference.child(FavoritesPATH).child(user!!.uid)
-        favRef.addChildEventListener(mFavoriteListener)
+        favRef.addChildEventListener(mFavoriteListener)*/
 
         // ListViewの準備
         mListView = findViewById(R.id.listView)
@@ -131,4 +149,29 @@ class FavoriteActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         return true
     }
+
+    override fun onResume() {
+        super.onResume()
+        //startActivity(intent)
+        mAuth = FirebaseAuth.getInstance()
+        val user = mAuth.currentUser
+        val dataBaseReference = FirebaseDatabase.getInstance().reference
+        val favRef = dataBaseReference.child(FavoritesPATH).child(user!!.uid)
+        favRef.addChildEventListener(mFavoriteListener)
+        mListView = findViewById(R.id.listView)
+        mAdapter = QuestionsListAdapter(this)
+        mQuestionArrayList = ArrayList<Question>()
+
+        mAdapter.setQuestionArrayList(mQuestionArrayList)
+        mListView.adapter = mAdapter
+        mAdapter.notifyDataSetChanged()
+        Log.d("matt7","onResume")
+    }
+
 }
+
+
+
+
+
+

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.widget.ListView
 import com.google.android.gms.tasks.OnCompleteListener
@@ -124,8 +125,7 @@ class QuestionDetailActivity : AppCompatActivity() {
 
 
         lateinit var mfavoriteListener: OnCompleteListener<AuthResult>
-//        mfavoriteListener = OnCompleteListener { task ->
-//            if (task.isSuccessful) {
+
         lateinit var mDataBaseReference: DatabaseReference
         mDataBaseReference = FirebaseDatabase.getInstance().reference
         if (user != null) {
@@ -179,6 +179,17 @@ class QuestionDetailActivity : AppCompatActivity() {
             }
         }
     }
+
+    /*override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        return if (keyCode == KeyEvent.KEYCODE_BACK) {
+                val intent = Intent(this, FavoriteActivity::class.java)
+                startActivity(intent)
+                super.onKeyDown(keyCode, event)
+        } else {
+            super.onKeyDown(keyCode, event)
+        }
+    }*/
+
 }
 
 

@@ -251,6 +251,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // --- ここまで追加する ---
 
         return true
+
     }
 
 }
